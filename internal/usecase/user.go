@@ -9,22 +9,24 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var _ UserUsecase = &userUsecaseImpl{}
+//go:generate mockgen -source=./user.go -destination=./mock/mock_user.go -package=mock
 
-type UserUsecase interface {
+var _ UserUseCase = &userUseCaseImpl{}
+
+type UserUseCase interface {
 	Register(ctx context.Context, req *model.RegisterRequest) (*entity.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 }
 
-type userUsecaseImpl struct {
+type userUseCaseImpl struct {
 	userRepository repository.UserRepository
 }
 
-func (u userUsecaseImpl) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
+func (u userUseCaseImpl) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	return u.userRepository.FindByEmail(ctx, email)
 }
 
-func (u userUsecaseImpl) Register(ctx context.Context, req *model.RegisterRequest) (*entity.User, error) {
+func (u userUseCaseImpl) Register(ctx context.Context, req *model.RegisterRequest) (*entity.User, error) {
 	password, _ := bcrypt.GenerateFromPassword([]byte(req.Password), 14)
 
 	user := &entity.User{
@@ -41,8 +43,8 @@ func (u userUsecaseImpl) Register(ctx context.Context, req *model.RegisterReques
 	return user, nil
 }
 
-func ProvideUserUsecase(userRepository repository.UserRepository) UserUsecase {
-	return &userUsecaseImpl{
+func ProvideUserUseCase(userRepository repository.UserRepository) UserUseCase {
+	return &userUseCaseImpl{
 		userRepository,
 	}
 }

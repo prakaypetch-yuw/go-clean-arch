@@ -28,11 +28,11 @@ func InitializeApplication(configPath config.FilePath) (*Application, func(), er
 		return nil, nil, err
 	}
 	userRepository := repository.ProvideUserRepository(gormDB)
-	userUsecase := usecase.ProvideUserUsecase(userRepository)
-	tokenUsecase := usecase.ProvideTokenUsecase(configConfig)
-	userHandler := handler.ProvideUserHandler(userUsecase, tokenUsecase)
+	userUseCase := usecase.ProvideUserUseCase(userRepository)
+	tokenUseCase := usecase.ProvideTokenUseCase(configConfig)
+	userHandler := handler.ProvideUserHandler(userUseCase, tokenUseCase)
 	handlerProvider := handler.ProvideHandlerProvider(userHandler)
-	jwtAuthMiddleware := middleware.ProvideJWTAuthMiddleware(tokenUsecase)
+	jwtAuthMiddleware := middleware.ProvideJWTAuthMiddleware(tokenUseCase)
 	middlewareProvider := middleware.ProvideMiddlewareProvider(jwtAuthMiddleware)
 	app := server.ProvideFiberServer(handlerProvider, middlewareProvider)
 	application := &Application{

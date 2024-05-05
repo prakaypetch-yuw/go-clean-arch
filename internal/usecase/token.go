@@ -9,14 +9,16 @@ import (
 	"github.com/prakaypetch-yuw/go-clean-arch/internal/domain/model"
 )
 
-var _ TokenUsecase = tokenUsecaseImpl{}
+//go:generate mockgen -source=./token.go -destination=./mock/mock_token.go -package=mock
+
+var _ TokenUseCase = tokenUseCaseImpl{}
 
 var (
 	accessTokenExpire  = time.Minute * 15
 	refreshTokenExpire = time.Hour * 24 * 7
 )
 
-type TokenUsecase interface {
+type TokenUseCase interface {
 	NewToken(id uint, email string) (token *model.Token, err error)
 	NewAccessToken(claims model.UserClaims) (string, error)
 	NewRefreshToken(claims jwt.RegisteredClaims) (string, error)
@@ -24,29 +26,29 @@ type TokenUsecase interface {
 	ParseRefreshToken(refreshToken string) *jwt.RegisteredClaims
 }
 
-type tokenUsecaseImpl struct {
+type tokenUseCaseImpl struct {
 	jwtKey []byte
 }
 
-func ProvideTokenUsecase(config config.Config) TokenUsecase {
-	return &tokenUsecaseImpl{
+func ProvideTokenUseCase(config config.Config) TokenUseCase {
+	return &tokenUseCaseImpl{
 		[]byte(config.JWT.Secret),
 	}
 }
 
-func (t tokenUsecaseImpl) NewAccessToken(claims model.UserClaims) (string, error) {
+func (t tokenUseCaseImpl) NewAccessToken(claims model.UserClaims) (string, error) {
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return accessToken.SignedString(t.jwtKey)
 }
 
-func (t tokenUsecaseImpl) NewRefreshToken(claims jwt.RegisteredClaims) (string, error) {
+func (t tokenUseCaseImpl) NewRefreshToken(claims jwt.RegisteredClaims) (string, error) {
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return refreshToken.SignedString(t.jwtKey)
 }
 
-func (t tokenUsecaseImpl) ParseAccessToken(accessToken string) (*model.UserClaims, error) {
+func (t tokenUseCaseImpl) ParseAccessToken(accessToken string) (*model.UserClaims, error) {
 	parsedAccessToken, err := jwt.ParseWithClaims(accessToken, &model.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return t.jwtKey, nil
 	})
@@ -57,7 +59,7 @@ func (t tokenUsecaseImpl) ParseAccessToken(accessToken string) (*model.UserClaim
 	return parsedAccessToken.Claims.(*model.UserClaims), nil
 }
 
-func (t tokenUsecaseImpl) ParseRefreshToken(refreshToken string) *jwt.RegisteredClaims {
+func (t tokenUseCaseImpl) ParseRefreshToken(refreshToken string) *jwt.RegisteredClaims {
 	parsedRefreshToken, _ := jwt.ParseWithClaims(refreshToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return t.jwtKey, nil
 	})
@@ -65,7 +67,7 @@ func (t tokenUsecaseImpl) ParseRefreshToken(refreshToken string) *jwt.Registered
 	return parsedRefreshToken.Claims.(*jwt.RegisteredClaims)
 }
 
-func (t tokenUsecaseImpl) NewToken(id uint, email string) (token *model.Token, err error) {
+func (t tokenUseCaseImpl) NewToken(id uint, email string) (token *model.Token, err error) {
 	idStr := strconv.Itoa(int(id))
 	accessToken, err := t.NewAccessToken(model.UserClaims{
 		Id:    strconv.Itoa(int(id)),

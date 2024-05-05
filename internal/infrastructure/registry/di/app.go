@@ -20,7 +20,7 @@ type Application struct {
 var MainBindingSet = wire.NewSet(config.ProvideConfig,
 	ServerSet,
 	DatabaseSet,
-	UsecaseSet,
+	UseCaseSet,
 	MiddlewareSet,
 	ProviderSet,
 	RepositorySet,
@@ -35,9 +35,9 @@ var DatabaseSet = wire.NewSet(
 	db.ProvideDB,
 )
 
-var UsecaseSet = wire.NewSet(
-	usecase.ProvideUserUsecase,
-	usecase.ProvideTokenUsecase,
+var UseCaseSet = wire.NewSet(
+	usecase.ProvideUserUseCase,
+	usecase.ProvideTokenUseCase,
 )
 
 var MiddlewareSet = wire.NewSet(

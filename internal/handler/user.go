@@ -16,8 +16,8 @@ type UserHandler interface {
 }
 
 type userHandlerImpl struct {
-	userUseCase  usecase.UserUsecase
-	tokenUsecase usecase.TokenUsecase
+	userUseCase  usecase.UserUseCase
+	tokenUseCase usecase.TokenUseCase
 }
 
 func (u userHandlerImpl) UserInfo(c *fiber.Ctx) error {
@@ -62,7 +62,7 @@ func (u userHandlerImpl) Login(c *fiber.Ctx) error {
 			})
 	}
 
-	token, err := u.tokenUsecase.NewToken(user.ID, user.Email)
+	token, err := u.tokenUseCase.NewToken(user.ID, user.Email)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).
 			JSON(fiber.Map{
@@ -81,15 +81,18 @@ func (u userHandlerImpl) Register(c *fiber.Ctx) error {
 
 	_, err := u.userUseCase.Register(c.Context(), req)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{
+				"message": "could not register",
+			})
 	}
 
 	return c.JSON(fiber.Map{})
 }
 
-func ProvideUserHandler(userUsecase usecase.UserUsecase, tokenUsecase usecase.TokenUsecase) UserHandler {
+func ProvideUserHandler(userUseCase usecase.UserUseCase, tokenUseCase usecase.TokenUseCase) UserHandler {
 	return &userHandlerImpl{
-		userUseCase:  userUsecase,
-		tokenUsecase: tokenUsecase,
+		userUseCase:  userUseCase,
+		tokenUseCase: tokenUseCase,
 	}
 }

@@ -13,12 +13,12 @@ type JWTAuthMiddleware interface {
 }
 
 type jwtAuthMiddlewareImpl struct {
-	tokenUsecase usecase.TokenUsecase
+	tokenUseCase usecase.TokenUseCase
 }
 
-func ProvideJWTAuthMiddleware(tokenUsecase usecase.TokenUsecase) JWTAuthMiddleware {
+func ProvideJWTAuthMiddleware(tokenUseCase usecase.TokenUseCase) JWTAuthMiddleware {
 	return &jwtAuthMiddlewareImpl{
-		tokenUsecase: tokenUsecase,
+		tokenUseCase: tokenUseCase,
 	}
 }
 
@@ -30,7 +30,7 @@ func (j *jwtAuthMiddlewareImpl) Auth() fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 		tokenString := authHeader[len(BearerSchema):]
-		claims, err := j.tokenUsecase.ParseAccessToken(tokenString)
+		claims, err := j.tokenUseCase.ParseAccessToken(tokenString)
 		if err != nil {
 			log.Error().Ctx(c.Context()).Err(err)
 			return fiber.ErrUnauthorized

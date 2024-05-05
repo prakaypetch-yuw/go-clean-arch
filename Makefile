@@ -8,6 +8,9 @@ TESTARGS=-coverprofile=./cover.out -covermode=atomic -coverpkg=./...
 
 all: clean $(TARGET)
 
+init:
+	docker compose up -d
+
 generate:
 	$(GO) generate ./...
 
